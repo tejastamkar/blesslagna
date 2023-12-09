@@ -11,7 +11,7 @@ export const webSocketFun = async () => {
         const queryObject = Url.parse(req.url, true).query;         //get userid from URL ip:8080/chatId
 
         const [receiverId, senderId] = [queryObject.receiverId, queryObject.senderId];
-
+        
         webSockets[senderId] = ws //add new user to the connection list
         console.log(`Client ${senderId} connected!`);
         // Check if senderId and receiverId have a chat data in the chat table
@@ -21,10 +21,12 @@ export const webSocketFun = async () => {
             // Chat data exists, retrieve all messages from message table with matching chat id
             let [messagesData] = await pool.query("SELECT * FROM chats WHERE chatId = ?", [chatRoomData[0].chatId]);
             // Further processing with messagesData if necessary
+            
             ws.send(JSON.stringify({ 'cmd': "chat", 'data': messagesData }));
         } else {
             // No chat data, create a new chat data entry
             await pool.query("INSERT INTO chatroom (senderId, receiverId) VALUES (?, ?)", [senderId, receiverId]);
+            ws.send(JSON.stringify({ 'cmd': "chat", 'data': [] }));
             // Use the inserted chat data id if needed for further operations
             // newChatData.insertId will contain the id of the newly created chat data
         }
@@ -34,7 +36,7 @@ export const webSocketFun = async () => {
             console.log(`Received message => ${message}`);
 
             var data = JSON.parse(message);
-            chatting(data.senderid, data.userid, data);
+            chatting(data.senderid, data.userid, data , ws);
         });
 
         ws.on('close', () => {

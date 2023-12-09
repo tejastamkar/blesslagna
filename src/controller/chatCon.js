@@ -2,11 +2,11 @@ import { sendMsg } from "../config/firebaseConfig.js";
 import { pool } from "../dbConfig.js";
 import { webSockets } from "./webSocket.js";
 
-export const chatting = async (senderId, receiverId, data) => {
+const auth_token = 'YLzefMtZLrJnhpttxNKBFbkmxupeeBpDQcZWpPDRLgUYwmVZQh'
+export const chatting = async (senderId, receiverId, data, ws) => {
 
     try {
 
-        const auth_token = 'YLzefMtZLrJnhpttxNKBFbkmxupeeBpDQcZWpPDRLgUYwmVZQh'
         if (data.auth === auth_token) {
             // const sender = webSockets[senderId];
             // const receiver = webSockets[receiverId];
@@ -23,7 +23,7 @@ export const chatting = async (senderId, receiverId, data) => {
                 }
                 if (webSockets[receiverId]) {
                     webSockets[receiverId].send(JSON.stringify(sendMsgData));
-                    webSockets[senderId].send(JSON.stringify({ "cmd": "send" }));
+                    ws.send(JSON.stringify({ "cmd": "send" }));
                 } else {
                     let [receiverData] = await pool.execute("SELECT fcmtoken FROM varVadhuDetails WHERE id = ?", [receiverId]);
                     let [senderData] = await pool.execute("SELECT name FROM varVadhuDetails WHERE id = ?", [senderId]);
