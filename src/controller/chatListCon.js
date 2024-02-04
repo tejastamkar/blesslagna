@@ -23,7 +23,6 @@ export const getChatroomDataByUserId = async (req, res) => {
                 data: err,
             });
         }
-        await pool.connect();
 
 
         let chatroomData = []
@@ -45,9 +44,11 @@ export const getChatroomDataByUserId = async (req, res) => {
             const latestChatQuery = `SELECT * FROM chats WHERE chatId = ? ORDER BY createdOn DESC LIMIT 1`;
             const [latestChatResult] = await pool.query(latestChatQuery, [data.chatId]);
             const latestChat = latestChatResult.length > 0 ? latestChatResult[0].msg : "";
+            const latestChatTime = latestChatResult.length > 0 ? latestChatResult[0].createdOn : null;
             let query = `SELECT id, name, photo1, firebase_id FROM varVadhuDetails WHERE id = ?`;
             const [userData] = await pool.query(query, [userId == data.senderId ? data.receiverId : data.senderId]);
             return {
+                latestChatTime: latestChatTime,
                 latestChat: latestChat,
                 ...data,
                 ...userData[0]

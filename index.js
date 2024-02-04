@@ -11,6 +11,7 @@ import { webSocketFun } from "./src/controller/webSocket.js";
 import https from 'https';
 import http from 'http';
 import fs from 'fs';
+import { dbConnectionMiddleware } from "./src/dbConfig.js";
 
 
 // import scoreRoute from './src/routes/score.js';
@@ -24,6 +25,7 @@ app.use(bodyParser.json({ limit: '600mb' }));
 app.use(cors())
 app.use(express.json({ limit: '600mb' }));
 
+app.use(dbConnectionMiddleware);
 app.use("/api/v1/fcm", fcmAPi); //? users route binding
 app.use("/api/v1/chat", chatList); //? users route binding
 
@@ -33,6 +35,7 @@ app.listen(port, () => {
     webSocketFun();
     console.log(`Blesslagna Backend is listening on port ${port}`);
 });
+
 
 
 app.use(function (req, res, next) {

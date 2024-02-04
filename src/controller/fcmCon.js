@@ -24,13 +24,13 @@ export async function postFCM(req, res) {
                 data: err,
             });
         }
-        await pool.connect();
+        ;
 
 
         const result = await pool.query(
             "UPDATE varVadhuDetails SET fcmtoken = ? WHERE id = ?", [token, id]
         )
-
+        console.log(result[0]);
         return res.status(200).json({
             success: true,
             data: result[0].changedRows,
